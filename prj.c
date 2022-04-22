@@ -15,7 +15,10 @@
 int votesCountYES = 0, votesCountNO = 0;
 
 void castVote(void);
-void votesCount(void);
+// The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
+
+void votesCount(void);   
+ // This function shows all the votes cast to the users.
 
 struct User {
     char username[15];
@@ -53,6 +56,7 @@ int main() {
 
 
     int mainMenuChoice;
+    // With do-while, we run the code and get input from the user. Then the loop continues until the condition in the while is satisfied.
     do {
         printf("\n\n ###### Welcome to Voting 2022 #####");
         printf("\n\n 1. Sing In");
@@ -70,14 +74,14 @@ int main() {
                 scanf("%s", readPassword);
 
                 int loggedUserIndex = UNDIFENED_USER_INDEX;
+                // Each index is assigned a user. We also used the "for" loop to call them. 
+                // Here we check the input we received earlier. 
+                // If the entered value matches one of the users in the directory we assigned, the login is successful (we used the "strcmp" function to do this comparison).
                 for (int userIndex = 0; userIndex < USER_COUNT; userIndex++) {
                     struct User aUser = users[userIndex];
                     if (strcmp(readUsername, aUser.username) == 0 && strcmp(readPassword, aUser.password) == 0) {
                         loggedUserIndex = userIndex;
                         break;
-                        // Each index is assigned a user. We also used the "for" loop to call them. 
-                        // Here we check the input we received earlier. 
-                        // If the entered value matches one of the users in the directory we assigned, the login is successful (we used the "strcmp" function to do this comparison).
                     }
                 }
 
@@ -85,6 +89,7 @@ int main() {
                     printf("Login success");
                     printf("\n\n ###### Welcome to Voting 2022 #####");
                     int choice;
+                    // With do-while, if the user logs in successfully, it will show the user options to vote, see the voting status.
                     do {
                         printf("\n\n 1. Cast the Vote");
                         printf("\n 2. Find Vote Count");
@@ -101,10 +106,10 @@ int main() {
                                     users[loggedUserIndex].voteRight = false; 
 
                                     int enoughVoteCount = (USER_COUNT / 2);
+                                    // When the majority of votes is achieved in the voting, it determines the voting result.
                                     if (votesCountYES > enoughVoteCount || votesCountNO > enoughVoteCount) {
                                         votesCount();
                                         printf("\nResult has been decided!");
-                                        // When the majority of votes is achieved in the voting, it determines the voting result.
                                     }else if (votesCountYES == votesCountNO){
                                         votesCount();
                                         printf("\nThe votecount is equal.");
@@ -133,11 +138,14 @@ int main() {
             }    
             break;
         }
+    // It allows the other user to log in to the system when the logged in user leaves the system. In this way, the cycle continues.    
     } while (mainMenuChoice != 0);
     return 0;
 }
 
 void castVote() {
+    // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
+
     int choice;
     printf("\n\n ### Please choose your Candidate ####\n\n");
     printf("\n 1. %s", YESOPTION);
@@ -146,6 +154,7 @@ void castVote() {
     scanf("%d", &choice);
     switch (choice) {
         case 1: 
+        // Here we increment the votesCountYES and votesCountNO that we defined above.
             votesCountYES++;
             printf("\n thanks for vote !!");
         break;
@@ -155,13 +164,12 @@ void castVote() {
         break;
         default: 
             printf("\n Error: Wrong Choice !! Please retry");
-        // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
     }
 }
 
 void votesCount() {
+    // This function shows all the votes cast to the users.
     printf("\n\n ##### Voting Statics ####");
     printf("\n %s - %d ", YESOPTION, votesCountYES);
     printf("\n %s - %d ", NOOPTION, votesCountNO);
-    // This function shows all the votes cast to the users.
 }
