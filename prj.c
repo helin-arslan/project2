@@ -4,9 +4,13 @@
 
 #define YESOPTION "YES"
 #define NOOPTION "NO"
-#define USER_COUNT 4
+#define USER_COUNT 4 
+// USER_COUNT: Shows the number of people we have identified.
 
 #define UNDIFENED_USER_INDEX -1
+// The information of our users is registered in the index and it ensures that a user other than these users cannot log in when they want to log in to the system. 
+// We showed the unregistered user with -1 because the index starts from 0.
+// It shows that the user logged into the system is not defined to the system.
 
 int votesCountYES = 0, votesCountNO = 0;
 
@@ -17,6 +21,7 @@ struct User {
     char username[15];
     char password[15];
     bool voteRight;
+    // We set the voting right of the user with the bool type. It gets "true" if it has voting rights, "false" otherwise.
 };
 
 int main() {
@@ -46,14 +51,10 @@ int main() {
     fourthUser.voteRight = true;
     users[3] = fourthUser;
 
-    // for (int i = 0; i < USER_COUNT; i++) {
-    //     struct User aUser = users[i];
-    //     printf("Username %s \n", aUser.username);
-    // }
 
     int mainMenuChoice;
     do {
-        // printf("\n\n ###### Welcome to Voting 2022 #####");
+        printf("\n\n ###### Welcome to Voting 2022 #####");
         printf("\n\n 1. Sing In");
         printf("\n 0. Exit");
         printf("\n Please enter your choice : ");
@@ -74,6 +75,9 @@ int main() {
                     if (strcmp(readUsername, aUser.username) == 0 && strcmp(readPassword, aUser.password) == 0) {
                         loggedUserIndex = userIndex;
                         break;
+                        // Each index is assigned a user. We also used the "for" loop to call them. 
+                        // Here we check the input we received earlier. 
+                        // If the entered value matches one of the users in the directory we assigned, the login is successful (we used the "strcmp" function to do this comparison).
                     }
                 }
 
@@ -89,14 +93,18 @@ int main() {
                         scanf("%d", &choice);
                         switch (choice) {
                             case 1: 
+                                // The purpose of using the if statement is to check "if" the user has voting rights. 
+                                // If there is a right to vote and the person votes, the right to vote becomes "false".
+                                // When it becomes "false", user cannot use vote.
                                 if (users[loggedUserIndex].voteRight) {
                                     castVote();
-                                    users[loggedUserIndex].voteRight = false;
+                                    users[loggedUserIndex].voteRight = false; 
 
                                     int enoughVoteCount = (USER_COUNT / 2);
                                     if (votesCountYES > enoughVoteCount || votesCountNO > enoughVoteCount) {
                                         votesCount();
                                         printf("\nResult has been decided!");
+                                        // When the majority of votes is achieved in the voting, it determines the voting result.
                                     }else if (votesCountYES == votesCountNO){
                                         votesCount();
                                         printf("\nThe votecount is equal.");
@@ -147,6 +155,7 @@ void castVote() {
         break;
         default: 
             printf("\n Error: Wrong Choice !! Please retry");
+        // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
     }
 }
 
@@ -154,4 +163,5 @@ void votesCount() {
     printf("\n\n ##### Voting Statics ####");
     printf("\n %s - %d ", YESOPTION, votesCountYES);
     printf("\n %s - %d ", NOOPTION, votesCountNO);
+    // This function shows all the votes cast to the users.
 }
