@@ -1,84 +1,101 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
 #define YESOPTION "YES"
 #define NOOPTION "NO"
 #define ABSOPTION "Abstention"
+
+enum Vote { YES, NO, ABS, UNDEFINED = -1 };
+
 #define USER_COUNT 4 
 // USER_COUNT: Shows the number of people we have identified.
-
 #define UNDIFENED_USER_INDEX -1
 // The information of our users is registered in the index and it ensures that a user other than these users cannot log in when they want to log in to the system. 
 // We showed the unregistered user with -1 because the index starts from 0.
 // It shows that the user logged into the system is not defined to the system.
-
-int votesCountYES = 0, votesCountNO = 0, votesCountAbs = 0;
-
-
-void castVote(void);
+// int votesCountYES = 0, votesCountNO = 0, votesCountAbs = 0;
 // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
-
-void votesCount(void);
+void castVote(int);
 // This function shows all the votes cast to the users.
-
+void votesCount(void);
 void changePassword(void);
-
 void changeVote(void);
+int countVote(enum Vote vote);
+
 
 struct User {
     char username[15];
     char password[15];
-    char newPassword[15];
-    int voteYes;
-    int voteNo;
-    int voteAbstention;
-    bool voteRight;
+    enum Vote vote;
     // We set the voting right of the user with the bool type. It gets "true" if it has voting rights, "false" otherwise.
+    bool voteRight;
 };
 
-int main() {
-    struct User users[USER_COUNT];
+// struct User users[USER_COUNT];
+struct User* users;
+
+void createInitialUsers() {
+    users = malloc(sizeof(struct User) * USER_COUNT);
 
     struct User firstUser;
     strcpy(firstUser.username, "20201701018");
     strcpy(firstUser.password, "123");
+    firstUser.vote = UNDEFINED;
     firstUser.voteRight = true;
-    firstUser.voteYes = 0;
-    firstUser.voteNo = 0;
-    firstUser.voteAbstention = 0;
     users[0] = firstUser;
 
     struct User secondUser;
     strcpy(secondUser.username, "20201701055");
     strcpy(secondUser.password, "123");
+    secondUser.vote = UNDEFINED;
     secondUser.voteRight = true;
-    secondUser.voteYes = 0;
-    secondUser.voteNo = 0;
-    secondUser.voteAbstention = 0;
     users[1] = secondUser;
 
     struct User thirdUser;
     strcpy(thirdUser.username, "20201701062");
     strcpy(thirdUser.password, "123");
+    thirdUser.vote = UNDEFINED;
     thirdUser.voteRight = true;
-    thirdUser.voteYes = 0;
-    thirdUser.voteNo = 0;
-    thirdUser.voteAbstention = 0;
     users[2] = thirdUser;
 
     struct User fourthUser;
     strcpy(fourthUser.username, "20201701003");
     strcpy(fourthUser.password, "123");
+    fourthUser.vote = UNDEFINED;
     fourthUser.voteRight = true;
-    fourthUser.voteYes = 0;
-    fourthUser.voteNo = 0;
-    fourthUser.voteAbstention = 0;
     users[3] = fourthUser;
+}
 
+void populateUserFromFile() {
+    FILE* data;
+    if ((data = fopen("users.bin", "rb")) == NULL) {
+        printf("Populating initial users\n");
+        createInitialUsers();
+    }
+    else {
+        users = malloc(sizeof(struct User) * USER_COUNT);
+        fread(users, sizeof(struct User), USER_COUNT, data);
+    }
+}
 
+void saveUsersToFile() {
+    FILE* data;
+    if ((data = fopen("users.bin", "wb")) != NULL) {
 
+        fwrite(users, sizeof(struct User), USER_COUNT, data);
+        fclose(data);
+    }
+    else {
+        printf("Error opening file\n");
+    }
+}
+
+int main() {
+
+    populateUserFromFile();
 
     int mainMenuChoice;
     // With do-while, we run the code and get input from the user. Then the loop continues until the condition in the while is satisfied.
@@ -114,11 +131,6 @@ int main() {
                 printf("Login success");
                 printf("\n\n ###### Welcome to Voting 2022 #####");
                 int choice;
-
-
-
-
-
                 // With do-while, if the user logs in successfully, it will show the user options to vote, see the voting status.
                 do {
 
@@ -131,69 +143,14 @@ int main() {
                     scanf("%d", &choice);
                     switch (choice) {
                     case 1:
-
-
-
-                     
+                        // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
+                        // The purpose of using the if statement is to check "if" the user has voting rights. 
+                        // If there is a right to vote and the person votes, the right to vote becomes "false".
+                        // When it becomes "false", user cannot use vote.
                         if (users[loggedUserIndex].voteRight) {
                             users[loggedUserIndex].voteRight = false;
-
-                            void castVote();
-                            int choice;
-                            printf("\n\n ### Please choose your Candidate ####\n\n");
-                            printf("\n 1. %s", YESOPTION);
-                            printf("\n 2. %s", NOOPTION);
-                            printf("\n 3. %s", ABSOPTION);
-                            printf("\nInput your choice (1 or 2) : ");
-                            scanf("%d", &choice);
-                            switch (choice) {
-                            case 1:
-                                // Here we increment the votesCountYES and votesCountNO that we defined above.
-                                votesCountYES++;
-                                users[loggedUserIndex].voteYes++;
-                                printf("\n ## Thanks for vote !! ##");
-
-                                break;
-                            case 2:
-                                votesCountNO++;
-                                users[loggedUserIndex].voteNo++;
-                                printf("\n ## Thanks for vote !! ##");
-                                break;
-                            case 3:
-                                votesCountAbs++;
-                                users[loggedUserIndex].voteAbstention++;
-                                printf("\n ## Thanks for vote !! ##");
-                                break;
-                            default:
-                                printf("\n ## Error: Wrong Choice !! Please retry ##");
-                            }
-
-
-                            int enoughVoteCount = (USER_COUNT / 2);
-                            // When the majority of votes is achieved in the voting, it determines the voting result.
-                            if (votesCountYES > enoughVoteCount || votesCountYES == enoughVoteCount && votesCountAbs == votesCountNO) {
-                                votesCount();
-                                printf(" \n\n ## 'YES' WON BY %d VOTES. ## \n", votesCountYES);
-                            }
-                            else if (votesCountNO > enoughVoteCount || votesCountNO == enoughVoteCount && votesCountAbs == votesCountYES) {
-                                votesCount();
-                                printf(" \n\n ## 'NO' WON BY %d VOTES. ## \n", votesCountNO);
-                            }
-                            else if (votesCountAbs > votesCountYES && votesCountAbs > votesCountNO && votesCountAbs == enoughVoteCount) {
-                                printf(" \n\n ## THERE IS NO WINNER. ## \n");
-                                votesCount();
-                                
-
-                            }
-
-
+                            castVote(loggedUserIndex);
                         }
-
-                       
-
-
-
-
                         else {
                             printf("\nYou cannot vote again!");
                         }
@@ -201,104 +158,22 @@ int main() {
                     case 2:
                         votesCount();
                         break;
-                    case 3:
-
-                    {   void changePassword();
-                    char password[15];
-                    char newPassword[15];
-                    printf("\n Please enter the new password: ");
-                    scanf("%s", newPassword);
-                    strcpy(users[loggedUserIndex].password, newPassword);
-                    printf("\n ##Your password successfuly changed.##");
+                    case 3: {
+                        char newPassword[15];
+                        printf("\n Please enter the new password: ");
+                        scanf("%s", newPassword);
+                        strcpy(users[loggedUserIndex].password, newPassword);
+                        printf("\n ##Your password successfuly changed.##");
                     }
-                    break;
-
-
+                          break;
                     case 4:
                         if (users[loggedUserIndex].voteRight) {
-
                             printf("\n## First you have to vote! ##");
-
-
-
                         }
                         else {
-
-
-                            void changeVote(); {
-                                int choice;
-                                printf("\n\n ### Please choose your Candidate ####\n\n");
-                                printf("\n 1. %s", YESOPTION);
-                                printf("\n 2. %s", NOOPTION);
-                                printf("\n 3. %s", ABSOPTION);
-                                printf("\nInput your choice (1 or 2 or 3) : ");
-                                scanf("%d", &choice);
-                                switch (choice) {
-                                case 1:
-                                    if (users[loggedUserIndex].voteYes != 0) {
-
-                                        printf("\n Your vote is same !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteNo != 0) {
-                                        votesCountNO--;
-                                        votesCountYES++;
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteAbstention != 0) {
-                                        votesCountAbs--;
-                                        votesCountYES++;
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-
-                                    break;
-
-                                case 2:
-                                    if (users[loggedUserIndex].voteYes != 0) {
-                                        votesCountYES--;
-                                        votesCountNO++;
-
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteNo != 0) {
-                                        printf("\n Your vote is same !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteAbstention != 0) {
-                                        votesCountAbs--;
-                                        votesCountNO++;
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-                                    break;
-                                case 3:
-                                    if (users[loggedUserIndex].voteYes != 0) {
-                                        votesCountYES--;
-                                        votesCountAbs++;
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteNo != 0) {
-                                        votesCountNO--;
-                                        votesCountAbs++;
-                                        printf("\n Your vote is succesfully changed !!");
-                                    }
-                                    else if (users[loggedUserIndex].voteAbstention != 0) {
-                                        printf("\n Your vote is same !!");
-                                    }
-                                    break;
-
-                                default:
-                                    printf("\n Error: Wrong Choice !! Please retry");
-                                }
-                            }
-
-
-
+                            castVote(loggedUserIndex);
                         }
                         break;
-
-
-
-
-
-
                     default: {
                         choice = 0;
                         printf("\n ## User signed out. ##");
@@ -319,47 +194,71 @@ int main() {
         }
         // It allows the other user to log in to the system when the logged in user leaves the system. In this way, the cycle continues.    
     } while (mainMenuChoice != 0);
+
+    saveUsersToFile();
     return 0;
 }
 
-void castVote() {
-
-
-    // The purpose of this function is to increase the votes cast. It increases the "yes" or "no" option according to the selection made.
-
+void castVote(int loggedUserIndex) {
     int choice;
-
     printf("\n\n ### Please choose your Candidate ####\n\n");
     printf("\n 1. %s", YESOPTION);
     printf("\n 2. %s", NOOPTION);
     printf("\n 3. %s", ABSOPTION);
-    printf("\nInput your choice (1 or 2) : ");
+    printf("\nInput your choice (1, 2 or 3) : ");
     scanf("%d", &choice);
     switch (choice) {
     case 1:
-        // Here we increment the votesCountYES and votesCountNO that we defined above.
-        votesCountYES++;
+        users[loggedUserIndex].vote = YES;
         printf("\n ## Thanks for vote !! ##");
         break;
     case 2:
-        votesCountNO++;
+        users[loggedUserIndex].vote = NO;
         printf("\n ## Thanks for vote !! ##");
         break;
     case 3:
-        votesCountAbs++;
+        users[loggedUserIndex].vote = ABS;
         printf("\n ## Thanks for vote !! ##");
         break;
     default:
         printf("\n ## Error: Wrong Choice !! Please retry ##");
     }
+
+    int votesCountYES = countVote(YES);
+    int votesCountNO = countVote(NO);
+    int votesCountAbs = countVote(ABS);
+
+
+    int enoughVoteCount = (USER_COUNT / 2);
+    // When the majority of votes is achieved in the voting, it determines the voting result.
+    if (votesCountYES > enoughVoteCount || votesCountYES == enoughVoteCount && votesCountAbs == votesCountNO) {
+        votesCount();
+        printf(" \n\n ## 'YES' WON BY %d VOTES. ## \n", votesCountYES);
+    }
+    else if (votesCountNO > enoughVoteCount || votesCountNO == enoughVoteCount && votesCountAbs == votesCountYES) {
+        votesCount();
+        printf(" \n\n ## 'NO' WON BY %d VOTES. ## \n", votesCountNO);
+    }
+    else if (votesCountAbs > votesCountYES && votesCountAbs > votesCountNO && votesCountAbs == enoughVoteCount) {
+        printf(" \n\n ## THERE IS NO WINNER. ## \n");
+        votesCount();
+    }
 }
 
-
+int countVote(enum Vote vote) {
+    int countOfVotes = 0;
+    for (int userIndex = 0; userIndex < USER_COUNT; userIndex++) {
+        struct User aUser = users[userIndex];
+        if (aUser.vote == vote) {
+            countOfVotes++;
+        }
+    }
+    return countOfVotes;
+}
 
 void votesCount() {
-
     printf("\n\n ##### Voting Statics ####");
-    printf("\n %s - %d ", YESOPTION, votesCountYES);
-    printf("\n %s - %d ", NOOPTION, votesCountNO);
-    printf("\n %s - %d ", ABSOPTION, votesCountAbs);
+    printf("\n YES - %d ", countVote(YES));
+    printf("\n NO - %d ", countVote(NO));
+    printf("\n ABS - %d ", countVote(ABS));
 }
